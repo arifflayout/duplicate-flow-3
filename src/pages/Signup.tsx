@@ -14,7 +14,7 @@ import type { UserRole } from '@/types';
 
 const Signup = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { signup } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -50,20 +50,17 @@ const Signup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setIsLoading(true);
 
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock registration success
-      login(formData.email, formData.password, formData.role);
+      const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+      await signup(formData.email, formData.password, fullName, formData.role);
       navigate('/');
-    } catch (err) {
-      setErrors({ general: 'Registration failed. Please try again.' });
+    } catch (err: any) {
+      setErrors({ general: err?.message || 'Registration failed. Please try again.' });
     } finally {
       setIsLoading(false);
     }

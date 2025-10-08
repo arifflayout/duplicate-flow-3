@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -30,7 +31,7 @@ import AppLayout from '@/components/Layout/AppLayout';
 import PageLayout from '@/components/Layout/PageLayout';
 
 const Profile = () => {
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -56,21 +57,22 @@ const Profile = () => {
 
   const handleSave = async () => {
     setIsSaving(true);
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Update user context
-      if (user) {
-        setUser({
-          ...user,
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
           name: profileData.name,
-          email: profileData.email,
-          company: profileData.company
-        });
-      }
-      
+          company: profileData.company,
+          location: profileData.location,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
       setIsEditing(false);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);

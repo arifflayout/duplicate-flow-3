@@ -17,8 +17,7 @@ const Login = () => {
   const { login, isLoading: authLoading } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
-    role: 'developer' as UserRole
+    password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -43,10 +42,10 @@ const Login = () => {
     if (!validateForm()) return;
 
     try {
-      await login(formData.email, formData.password, formData.role);
+      await login(formData.email, formData.password);
       navigate('/');
-    } catch (err) {
-      setErrors({ general: 'Login failed. Please check your credentials and try again.' });
+    } catch (err: any) {
+      setErrors({ general: err?.message || 'Login failed. Please check your credentials and try again.' });
     }
   };
 
@@ -70,8 +69,7 @@ const Login = () => {
   const fillDemoAccount = (account: typeof demoAccounts[0]) => {
     setFormData({
       email: account.email,
-      password: 'demo123',
-      role: account.role as UserRole
+      password: 'demo123'
     });
   };
 
@@ -148,23 +146,6 @@ const Login = () => {
                 {errors.password && (
                   <p className="text-sm text-red-500">{errors.password}</p>
                 )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Select value={formData.role} onValueChange={(value) => handleInputChange('role', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="developer">Developer</SelectItem>
-                    <SelectItem value="consultant">Consultant</SelectItem>
-                    <SelectItem value="contractor">Contractor</SelectItem>
-                    <SelectItem value="cpm">Project Manager</SelectItem>
-                    <SelectItem value="lender">Lender</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
 
               <Button type="submit" className="w-full" disabled={authLoading}>
